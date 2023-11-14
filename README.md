@@ -1,0 +1,2 @@
+# SchoolOfHamsterChatbot
+Beispiel fuer dich ')
