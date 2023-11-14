@@ -1,35 +1,20 @@
 import openai
 import os
+import pandas
 
-openai.api_key = "Deine API key"
+openai.api_key = "Deine API Key"
 
-class chatbot():
-    def __init__(self):
-        self._viewers = {}
-
-    def new_chat(self, username:str, message:str):
-        if username not in self._viewers.keys():   
-            self._viewers[username] = [
-                {"role": "system", "content": "Du bist ein witziger twitch.com-Bot, der nicht zu unhöflich ist. Beantworte die folgende Konversation unter Berücksichtigung früherer Antworten mit einer Klartextausgabe. Fügen Sie Twitch-kompatible Emotes oder Emote-Strings ein. Ihr Name ist {username}.  Antworte auf Deutsch."},
-                {"role": "user", "content": message}
-            ]   
-        else:
-            
-            self._viewers[username].append({"role": "user", "content": message})
-        chatbot_response = self._get_response(username)
-        self._viewers[username].append(chatbot_response)
-        return chatbot_response
-                 
-    def _get_response(self, username:str):
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=self._viewers[username]
-        )
-
-        # Print the response and add it to the messages list
-        chat_message = response['choices'][0]['message']['content']
-        self._viewers[username].append({"role": "assistant", "content": chat_message})
-        return(chat_message)
-
-if __name__ == "__main__":
-    chatbot()
+input_sentences = pandas.read_csv("examples.csv", delimiter=",", header=None)
+print(input_sentences[0])
+responses = []
+for line in input_sentences[0]:
+    print(line)
+    messages = [{"role": "system", "content": "Du bist ein witziger twitch.com-Bot, der nicht zu unhöflich ist. Beantworte die folgende Konversation unter Berücksichtigung früherer Antworten mit einer Klartextausgabe. Fügen Sie Twitch-kompatible Emotes oder Emote-Strings ein. Antworte auf Deutsch."},
+                {"role": "user", "content": line}
+        ]    
+    print(messages, flush=True)
+    responses.append(openai.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=messages
+    ))
+pandas.DataFrame(responses).to_csv("responses.csv")
